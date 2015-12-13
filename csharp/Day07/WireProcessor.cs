@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace AdventOfCode.Day7
+namespace AdventOfCode.Day07
 {
     public class WireProcessResult
     {

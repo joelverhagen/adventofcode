@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace AdventOfCode.Day9
+namespace AdventOfCode.Day09
 {
     public class Location
     {

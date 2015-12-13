@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace AdventOfCode.Day7
+namespace AdventOfCode.Day07
 {
     public class WireParser
     {

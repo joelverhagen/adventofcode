@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace AdventOfCode.Day9
+namespace AdventOfCode.Day09
 {
     public class GraphParser
     {
