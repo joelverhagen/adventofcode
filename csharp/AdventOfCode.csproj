@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Day10\Program.cs" />
     <Compile Include="Day7\Models.cs" />
     <Compile Include="Day7\Program.cs" />
     <Compile Include="Day7\WireParser.cs" />
