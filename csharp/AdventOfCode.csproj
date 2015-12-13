@@ -47,6 +47,9 @@
     <Compile Include="Day7\WireParser.cs" />
     <Compile Include="Day7\WireProcessor.cs" />
     <Compile Include="Day8\Program.cs" />
+    <Compile Include="Day9\GraphParser.cs" />
+    <Compile Include="Day9\Models.cs" />
+    <Compile Include="Day9\Program.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -61,6 +64,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Day8\sampleInput.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Day9\input.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Day9\sampleInput.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
