@@ -51,6 +51,7 @@
     <Compile Include="Day09\GraphParser.cs" />
     <Compile Include="Day09\Models.cs" />
     <Compile Include="Day09\Program.cs" />
+    <Compile Include="Day11\Program.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
