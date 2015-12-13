@@ -57,10 +57,19 @@
     <Compile Include="Day09\Program.cs" />
     <Compile Include="Day11\Program.cs" />
     <Compile Include="Day12\Program.cs" />
+    <Compile Include="Day13\HappinessParser.cs" />
+    <Compile Include="Day13\Models.cs" />
+    <Compile Include="Day13\Program.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Day13\input.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Day13\sampleInput.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="App.config" />
     <Content Include="Day12\sampleInput.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
