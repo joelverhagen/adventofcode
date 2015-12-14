@@ -1,2 +1,2 @@
 # adventofcode
-My implementations of Advent of Code.
+My implementations of [Advent of Code](http://adventofcode.com).
