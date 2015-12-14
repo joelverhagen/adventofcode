@@ -11,10 +11,10 @@ namespace AdventOfCode.Day11
         public void Run()
         {
             var generator = new PasswordGenerator();
-            foreach (var password in generator.Start("hxbxwxba").Take(1))
-            {
-                Console.WriteLine(password);
-            }
+            var part1 = generator.Start("hxbxwxba").First();
+            Console.WriteLine($"Part 1 answer: {part1}");
+            var part2 = generator.Start(part1).First();
+            Console.WriteLine($"Part 2 answer: {part2}");
         }
     }
 
