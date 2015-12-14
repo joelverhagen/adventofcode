@@ -8,31 +8,42 @@ namespace AdventOfCode.Day07
         public void Run()
         {
             var parser = new WireParser();
-            var wireSequence = parser.ParseFile(@"Day7\input.txt").ToArray();
-            // var wireSequence = parser.ParseLines("123 -> x\n456 -> y\nx AND y -> d\nx OR y -> e\nx LSHIFT 2 -> f\ny RSHIFT 2 -> g\nNOT x -> h\nNOT y -> i").ToArray();
-            
-            Console.WriteLine("Parsed wires:");
-            foreach (var wire in wireSequence)
-            {
-                Console.WriteLine($" - {wire}");
-            }
-
             var processor = new WireProcessor();
-            var result = processor.Process(wireSequence);
-
-            Console.WriteLine();
-            Console.WriteLine("Values:");
-            foreach (var pair in result.Values.OrderBy(p => p.Key))
+            var part1Wires = parser.ParseFile(@"Day07\input.txt").ToArray();
+            
+            // Part 1
+            var part1Result = processor.Process(part1Wires);
+            if (part1Result.UnresolvedWires.Any())
             {
-                Console.WriteLine($" - {pair.Key}: {pair.Value}");
+                Console.WriteLine("Some wires in part 1 could not be resolved:");
+                foreach (var wire in part1Result.UnresolvedWires)
+                {
+                    Console.WriteLine($" - {wire}");
+                }
+
+                return;
             }
 
-            Console.WriteLine();
-            Console.WriteLine("Unresolved wires:");
-            foreach (var wire in result.UnresolvedWires)
+            Console.WriteLine($"Part 1 answer: {part1Result.Values["a"]}");
+
+            // Part 2
+            var part2Wires = part1Wires
+                .Select(w => w.Label == "b" ? new Wire {Label = "b", Signal = new ValueSignal {Value = part1Result.Values["a"]}} : w)
+                .ToArray();
+            var part2Result = processor.Process(part2Wires);
+            if (part2Result.UnresolvedWires.Any())
             {
-                Console.WriteLine($" - {wire}");
+                Console.WriteLine("Some wires in part 2 could not be resolved:");
+                foreach (var wire in part2Result.UnresolvedWires)
+                {
+                    Console.WriteLine($" - {wire}");
+                }
+
+                return;
             }
+
+            Console.WriteLine($"Part 2 answer: {part2Result.Values["a"]}");
+
         }
     }
 }
