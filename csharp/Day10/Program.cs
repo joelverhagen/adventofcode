@@ -12,9 +12,12 @@ namespace AdventOfCode.Day10
         public void Run()
         {
             var lookAndSay = new LookAndSay();
-            var sequence = lookAndSay.Start("1321131112");
-            var last = sequence.Take(40).Last();
-            Console.WriteLine(last.Length);
+
+            var at40 = lookAndSay.Start("1321131112").ElementAt(39);
+            Console.WriteLine($"Part 1 answer: {at40.Length}");
+
+            var at50 = lookAndSay.Start("1321131112").ElementAt(49);
+            Console.WriteLine($"Part 2 answer: {at50.Length}");
         }
     }
 
