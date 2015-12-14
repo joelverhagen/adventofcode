@@ -12,21 +12,38 @@ namespace AdventOfCode.Day13
     {
         public void Run()
         {
+            Part1();
+            Part2();
+        }
+
+        public void Part1()
+        {
             var happiness = new HappinessParser().ParseFile(@"Day13\input.txt").ToArray();
             var people = new PeopleBuilder().Build(happiness);
             var seating = new SeatingEnumerator().Enumerate(people.Keys);
             var evaluator = new SeatingEvaluator();
-            var arrangements = seating.Select(s => evaluator.EvaluateHappiness(people, s)).OrderBy(a => a.TotalHappiness);
+            var arrangements = seating.Select(s => evaluator.EvaluateHappiness(people, s)).OrderByDescending(a => a.TotalHappiness);
+            var first = arrangements.First();
+            Console.WriteLine($"Part 1 answer: {string.Join(", ", first.Order)} -> {first.TotalHappiness}");
+        }
 
-            int lastHappiness = int.MinValue;
-            foreach (var seatingArrangement in arrangements)
+        public void Part2()
+        {
+            var happiness = new HappinessParser().ParseFile(@"Day13\input.txt").ToArray();
+            var people = new PeopleBuilder().Build(happiness);
+            var joel = new Person {Name = "Joel", Happiness = new Dictionary<string, int>()};
+            foreach (var person in people.Values)
             {
-                if (seatingArrangement.TotalHappiness != lastHappiness)
-                {
-                    Console.WriteLine($"{string.Join(", ", seatingArrangement.Order)} -> {seatingArrangement.TotalHappiness}");
-                    lastHappiness = seatingArrangement.TotalHappiness;
-                }
+                person.Happiness[joel.Name] = 0;
+                joel.Happiness[person.Name] = 0;
             }
+            people[joel.Name] = joel;
+
+            var seating = new SeatingEnumerator().Enumerate(people.Keys);
+            var evaluator = new SeatingEvaluator();
+            var arrangements = seating.Select(s => evaluator.EvaluateHappiness(people, s)).OrderByDescending(a => a.TotalHappiness);
+            var first = arrangements.First();
+            Console.WriteLine($"Part 2 answer: {string.Join(", ", first.Order)} -> {first.TotalHappiness}");
         }
     }
 
