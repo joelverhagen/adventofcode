@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
 
 namespace AdventOfCode.Day08
 {
@@ -9,85 +6,44 @@ namespace AdventOfCode.Day08
     {
         public void Run()
         {
-            var parser = new EscapedStringParser();
-            var strings = parser.ParseFile(@"Day8\input.txt");
-
-            int literalCount = 0;
-            int parsedCount = 0;
-            foreach (var s in strings)
+            // Part 1
             {
-                literalCount += s.Input.Length;
-                parsedCount += s.Output.Length;
-            }
+                var parser = new StringParser();
+                var parsedStrings = parser.ParseFile(@"Day08\input.txt");
 
-            Console.WriteLine($"Literal count: {literalCount}");
-            Console.WriteLine($"Parsed count: {parsedCount}");
-            Console.WriteLine($"Different: {literalCount - parsedCount}");
-        }
-    }
-
-    public class EscapedStringParser
-    {
-        public IEnumerable<ParsedString> ParseFile(string path)
-        {
-            var lines = new List<ParsedString>();
-            using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
-            using(var reader = new StreamReader(stream))
-            {
-                string line;
-                while ((line = reader.ReadLine()) != null)
+                int literalCount = 0;
+                int parsedCount = 0;
+                foreach (var s in parsedStrings)
                 {
-                    lines.Add(ParseLine(line));
+                    literalCount += s.Input.Length;
+                    parsedCount += s.Output.Length;
                 }
+
+                Console.WriteLine("Part 1: ");
+                Console.WriteLine($"- Literal count: {literalCount}");
+                Console.WriteLine($"- Parsed count: {parsedCount}");
+                Console.WriteLine($"- Difference: {literalCount - parsedCount}");
             }
 
-            return lines;
-        }
-
-        public ParsedString ParseLine(string line)
-        {
-            var builder = new StringBuilder();
-            for (int i = 1; i < line.Length - 1; i++)
+            // Part 2
             {
-                switch (line[i])
+                var escaper = new StringEscaper();
+                var escapedStrings = escaper.EscapeFile(@"Day08\input.txt");
+
+                int literalCount = 0;
+                int escapedCount = 0;
+                foreach (var s in escapedStrings)
                 {
-                    case '\\':
-                        if (line[i + 1] == '"')
-                        {
-                            builder.Append('"');
-                            i++;
-                        }
-                        else if (line[i + 1] == '\\')
-                        {
-
-                            builder.Append('\\');
-                            i++;
-                        }
-                        else if(line[i + 1] == 'x')
-                        {
-                            var b = Convert.ToByte(line.Substring(i + 2, 2), 16);
-                            builder.Append(Encoding.ASCII.GetString(new[] {b}));
-                            i += 3;
-                        }
-                        else
-                        {
-                            throw new FormatException($"Invalid escape sequence found at index {i}.");
-                        }
-
-                        break;
-                    default:
-                        builder.Append(line[i]);
-                        break;
+                    literalCount += s.Input.Length;
+                    escapedCount += s.Output.Length;
                 }
+
+                Console.WriteLine();
+                Console.WriteLine("Part 2: ");
+                Console.WriteLine($"- Literal count: {literalCount}");
+                Console.WriteLine($"- Escaped count: {escapedCount}");
+                Console.WriteLine($"- Difference: {escapedCount - literalCount}");
             }
-
-            return new ParsedString {Input = line, Output = builder.ToString()};
         }
-    }
-
-    public class ParsedString
-    {
-        public string Input { get; set; }
-        public string Output { get; set; }
     }
 }

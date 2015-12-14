@@ -46,6 +46,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Day08\StringEscaper.cs" />
+    <Compile Include="Day08\StringParser.cs" />
     <Compile Include="Day10\Program.cs" />
     <Compile Include="Day07\Models.cs" />
     <Compile Include="Day07\Program.cs" />

@@ -4,8 +4,8 @@
     {
         static void Main(string[] args)
         {
-            var day07 = new Day07.Program();
-            day07.Run();
+            var day08 = new Day08.Program();
+            day08.Run();
         }
     }
 }
