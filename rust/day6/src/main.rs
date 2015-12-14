@@ -135,7 +135,7 @@ fn print_grid(grid: &BitVec, width: usize, height: usize) -> () {
 	println!("");
 }
 
-fn process_instructions(input: &str, width: usize, height: usize) -> i32 {
+fn process_instructions_part_1(input: &str, width: usize, height: usize) -> i32 {
 	// initialize the grid
 	let mut grid = BitVec::from_elem(width * height, false);
 
@@ -174,14 +174,46 @@ fn process_instructions(input: &str, width: usize, height: usize) -> i32 {
 	return count;
 }
 
+fn process_instructions_part_2(input: &str, width: usize, height: usize) -> i32 {
+	// initialize the grid
+	let mut grid: Vec<i32> = vec![0; width * height];
+
+	// process the instructions
+	for line in input.lines() {
+		let instruction_option = Instruction::parse(line);
+		if instruction_option.is_err() {
+			continue;
+		}
+
+		let instruction = instruction_option.unwrap();
+
+		for x in instruction.upper_left.0..instruction.lower_right.0 + 1 {
+			for y in instruction.upper_left.1..instruction.lower_right.1 + 1 {
+				let index = ((y as usize) * width) + (x as usize);
+				let old_value = grid[index];
+				let new_value = match instruction.instruction_type {
+					InstructionType::TurnOn => old_value + 1,
+					InstructionType::Toggle => old_value + 2,
+					InstructionType::TurnOff => old_value - 1,
+				};
+
+				grid[index] = max(0, new_value); 
+			}
+		}
+	}
+
+	let mut total = 0;
+	for value in grid {
+		total += value;
+	}
+
+	return total;
+}
+
 fn main() {
     println!("Advent of Code - day 6");
 
 	let input = read_file("input.txt").unwrap();
-	let answer = process_instructions(&input, 1000, 1000);
-	println!("Answer: {}", answer);
-	
-	// let input = "turn on 0,0 through 3,3\nturn off 1,1 through 2,2\ntoggle 0,0 through 3,3";
-	// let answer = process_instructions(&input, 4, 4);
-	// println!("Answer: {}", answer);
+	println!("Part 1 answer: {}", process_instructions_part_1(&input, 1000, 1000));
+	println!("Part 2 answer: {}", process_instructions_part_2(&input, 1000, 1000));
 }
