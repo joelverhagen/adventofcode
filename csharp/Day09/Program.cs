@@ -10,17 +10,22 @@ namespace AdventOfCode.Day09
         public void Run()
         {
             var parser = new GraphParser();
-            var graph = parser.ParseFile(@"Day9\input.txt");
+            var graph = parser.ParseFile(@"Day09\input.txt");
             var finder = new PathFinder();
 
-            int lastDistance = int.MaxValue;
-            foreach (var path in finder.EnumerateAllPaths(graph).OrderByDescending(p => p.Distance))
             {
-                if (lastDistance != path.Distance)
-                {
-                    Console.WriteLine($"{string.Join(" -> ", path.Locations)} = {path.Distance}");
-                    lastDistance = path.Distance;
-                }
+                Console.WriteLine("Part 1:");
+                var distances = finder.EnumerateAllPaths(graph);
+                var shortest = distances.OrderBy(p => p.Distance).First();
+                Console.WriteLine($"{string.Join(" -> ", shortest.Locations)} = {shortest.Distance}");
+            }
+
+            {
+                Console.WriteLine();
+                Console.WriteLine("Part 2:");
+                var distances = finder.EnumerateAllPaths(graph);
+                var longest = distances.OrderByDescending(p => p.Distance).First();
+                Console.WriteLine($"{string.Join(" -> ", longest.Locations)} = {longest.Distance}");
             }
         }
     }
