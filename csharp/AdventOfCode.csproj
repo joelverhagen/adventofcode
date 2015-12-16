@@ -64,6 +64,7 @@
     <Compile Include="Day13\Program.cs" />
     <Compile Include="Day14\Program.cs" />
     <Compile Include="Day15\Program.cs" />
+    <Compile Include="Day16\Program.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -82,6 +83,12 @@
     </Content>
     <Content Include="Day15\prompt.txt" />
     <Content Include="Day15\sampleInput.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Day16\hints.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Day16\input.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="App.config" />

@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            var program = new Day15.Program();
+            var program = new Day16.Program();
             program.Run();
         }
     }
