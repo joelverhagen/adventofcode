@@ -67,7 +67,13 @@
     <Compile Include="Day16\Program.cs" />
     <Compile Include="Day17\Program.cs" />
     <Compile Include="Day18\Program.cs" />
+    <Compile Include="Day19\ParsedInput.cs" />
+    <Compile Include="Day19\Part1\Problem.cs" />
+    <Compile Include="Day19\Part2\Problem.cs" />
+    <Compile Include="Day19\Part2\Solver.cs" />
     <Compile Include="Day19\Program.cs" />
+    <Compile Include="Day19\Part1\SequenceItem.cs" />
+    <Compile Include="Day19\Part1\Solver.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
