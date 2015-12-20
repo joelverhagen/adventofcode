@@ -74,6 +74,7 @@
     <Compile Include="Day19\Program.cs" />
     <Compile Include="Day19\Part1\SequenceItem.cs" />
     <Compile Include="Day19\Part1\Solver.cs" />
+    <Compile Include="Day20\Program.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
