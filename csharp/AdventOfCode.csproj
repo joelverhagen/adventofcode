@@ -74,6 +74,7 @@
     <Compile Include="Day19\Program.cs" />
     <Compile Include="Day19\Part1\SequenceItem.cs" />
     <Compile Include="Day19\Part1\Solver.cs" />
+    <Compile Include="Day21\Program.cs" />
     <Compile Include="Day20\Program.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -116,6 +117,15 @@
     </Content>
     <Content Include="Day19\prompt.txt" />
     <Content Include="Day19\sampleInput.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Day21\shop.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Day21\input.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Day21\sampleInput.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="App.config" />
