@@ -24,6 +24,17 @@ namespace AdventOfCode.Day22
             var state = _factory.Create();
             while (!result.HasValue)
             {
+                if (state.PlayerTurn)
+                {
+                    state.Player.HitPoints -= 1;
+
+                    if (state.Player.HitPoints < 1)
+                    {
+                        result = CombatResultType.HardDifficulty;
+                        break;
+                    }
+                }
+
                 // apply existing spells
                 foreach (var type in state.CastedSpells.Keys.ToArray())
                 {

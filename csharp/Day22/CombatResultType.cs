@@ -7,6 +7,7 @@ namespace AdventOfCode.Day22
         BossKillsPlayer,
         PlayerRunsOutOfSpells,
         PlayerRunsOutOfMana,
-        DuplicateSpell
+        DuplicateSpell,
+        HardDifficulty
     }
 }

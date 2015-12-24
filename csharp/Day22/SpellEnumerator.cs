@@ -43,6 +43,7 @@ namespace AdventOfCode.Day22
                     case CombatResultType.DuplicateSpell:
                     case CombatResultType.PlayerRunsOutOfMana:
                     case CombatResultType.BossKillsPlayer:
+                    case CombatResultType.HardDifficulty:
                         break;
 
                     case CombatResultType.PlayerRunsOutOfSpells:
