@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Text;
 
 namespace AdventOfCode.Day24
 {
@@ -13,9 +12,12 @@ namespace AdventOfCode.Day24
         {
             var enumerator = new Enumerator();
             var packages = new Parser().ParseFile(@"Day24\input.txt").ToArray();
-            var part1Result = enumerator.Enumerate(packages).First();
 
+            var part1Result = enumerator.Enumerate(packages, 3).First();
             Console.WriteLine($"Part 1 answer: {part1Result.QuantumEntanglement}");
+
+            var part2Result = enumerator.Enumerate(packages, 4).First();
+            Console.WriteLine($"Part 2 answer: {part2Result.QuantumEntanglement}");
         }
     }
 
@@ -32,17 +34,17 @@ namespace AdventOfCode.Day24
 
     public class Enumerator
     {
-        public IEnumerable<Groups> Enumerate(IEnumerable<int> packageSequence)
+        public IEnumerable<Groups> Enumerate(IEnumerable<int> packageSequence, int groupCount)
         {
             // sort packages in increasing weight
             var packages = packageSequence.OrderBy(p => p).ToArray();
             var totalWeight = packages.Sum();
-            if (totalWeight%3 != 0)
+            if (totalWeight%groupCount != 0)
             {
-                throw new ArgumentException($"The total package weight ({totalWeight}) must be divisible by three.");
+                throw new ArgumentException($"The total package weight ({totalWeight}) must be divisible by {groupCount}.");
             }
 
-            var target = totalWeight/3;
+            var target = totalWeight/groupCount;
             var tooHeavy = packages.Where(p => p > target).ToArray();
             if (tooHeavy.Any())
             {
@@ -51,25 +53,27 @@ namespace AdventOfCode.Day24
             
             foreach (var group1 in EnumerateGroups(target, new int[0], packages))
             {
-                var group1Remaining = new HashSet<int>(packages);
-                group1Remaining.ExceptWith(group1);
-
-                var group2 = EnumerateGroups(target, new int[0], group1Remaining.ToArray()).FirstOrDefault();
-                if (group2 == null)
+                // make sure at least one configuration for the other groups exists
+                var remaining = new HashSet<int>(packages);
+                remaining.ExceptWith(group1);
+                
+                var otherGroups = new List<int[]>();
+                for (int i = 1; i < groupCount; i++)
                 {
-                    continue;
+                    var otherGroup = EnumerateGroups(target, new int[0], remaining.ToArray()).FirstOrDefault();
+                    if (otherGroup == null)
+                    {
+                        break;
+                    }
+
+                    otherGroups.Add(otherGroup);
+                    remaining.ExceptWith(otherGroup);
                 }
 
-                var group2Remaining = new HashSet<int>(group1Remaining);
-                group2Remaining.ExceptWith(group2);
-
-                var group3 = EnumerateGroups(target, new int[0], group2Remaining.ToArray()).FirstOrDefault();
-                if (group3 == null)
+                if (otherGroups.Count == groupCount - 1)
                 {
-                    continue;
+                    yield return new Groups { Group1 = group1, OtherGroups = otherGroups.ToArray() };
                 }
-
-                yield return new Groups {Group1 = group1, Group2 = group2, Group3 = group3};
             }
         }
 
@@ -112,8 +116,7 @@ namespace AdventOfCode.Day24
     public class Groups
     {
         public int[] Group1 { get; set; }
-        public int[] Group2 { get; set; }
-        public int[] Group3 { get; set; }
+        public int[][] OtherGroups { get; set; }
 
         public BigInteger QuantumEntanglement => Group1.Aggregate(BigInteger.One, (p, v) => p*v);
     }
