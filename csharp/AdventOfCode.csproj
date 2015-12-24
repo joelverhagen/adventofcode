@@ -74,8 +74,17 @@
     <Compile Include="Day19\Program.cs" />
     <Compile Include="Day19\Part1\SequenceItem.cs" />
     <Compile Include="Day19\Part1\Solver.cs" />
+    <Compile Include="Day22\Characters.cs" />
+    <Compile Include="Day22\Combat.cs" />
+    <Compile Include="Day22\CombatResult.cs" />
+    <Compile Include="Day22\CombatResultType.cs" />
+    <Compile Include="Day22\CombatState.cs" />
+    <Compile Include="Day22\CombatStateFactory.cs" />
+    <Compile Include="Day22\Program.cs" />
     <Compile Include="Day21\Program.cs" />
     <Compile Include="Day20\Program.cs" />
+    <Compile Include="Day22\SpellEnumerator.cs" />
+    <Compile Include="Day22\Spells.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -128,6 +137,7 @@
     <Content Include="Day21\sampleInput.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Day22\prompt.txt" />
     <None Include="App.config" />
     <Content Include="Day12\sampleInput.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

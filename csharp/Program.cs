@@ -10,7 +10,7 @@ namespace AdventOfCode
     {
         static void Main(string[] args)
         {
-            var program = new Day21.Program();
+            var program = new Day22.Program();
             program.Run();
         }
     }
