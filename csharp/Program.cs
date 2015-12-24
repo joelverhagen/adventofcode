@@ -1,16 +1,10 @@
-﻿
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text.RegularExpressions;
-
-namespace AdventOfCode
+﻿namespace AdventOfCode
 {
     class Program
     {
         static void Main(string[] args)
         {
-            var program = new Day23.Program();
+            var program = new Day24.Program();
             program.Run();
         }
     }
