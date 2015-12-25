@@ -86,6 +86,7 @@
     <Compile Include="Day20\Program.cs" />
     <Compile Include="Day22\SpellEnumerator.cs" />
     <Compile Include="Day22\Spells.cs" />
+    <Compile Include="Day25\Program.cs" />
     <Compile Include="Day24\Program.cs" />
     <Compile Include="Day23\Program.cs" />
     <Compile Include="Program.cs" />
