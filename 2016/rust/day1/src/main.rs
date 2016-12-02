@@ -3,6 +3,7 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::io;
 use std::result::Result;
+use std::collections::HashSet;
 
 #[derive(Debug)]
 enum Direction {
@@ -14,6 +15,12 @@ enum Direction {
 struct Step {
     direction: Direction,
     distance: i32,
+}
+
+#[derive(Debug, Eq, PartialEq, Hash)]
+struct Location {
+    x: i32,
+    y: i32,
 }
 
 impl fmt::Display for Step {
@@ -77,12 +84,18 @@ fn parse_step(unparsed_step: &str) -> Result<Step, String> {
     })
 }
 
-fn evaluate_steps(steps: &Vec<Step>) -> i32 {
+fn evaluate_steps(steps: &Vec<Step>, stop_at_revisit: bool) -> i32 {
     let mut x = 0;
     let mut y = 0;
     let mut direction = 0;
 
-    println!("initial -> x: {}, y: {}, direction: {}", x, y, direction);
+    // println!("initial -> x: {}, y: {}, direction: {}", x, y, direction);
+
+    let mut visited: HashSet<Location> = HashSet::new();
+    visited.insert(Location {
+        x: x,
+        y: x,
+    });
 
     for step in steps {
         let direction_delta = match step.direction {
@@ -91,15 +104,34 @@ fn evaluate_steps(steps: &Vec<Step>) -> i32 {
         };
 
         direction = (direction + direction_delta + 4) % 4;
-        println!("{} -> x: {}, y: {}, direction: {}", step, x, y, direction);
 
-        match direction {
-            0 => y += step.distance,
-            1 => x += step.distance,
-            2 => y -= step.distance,
-            3 => x -= step.distance,
-            _ => {},
+        let mut done = false;
+
+        for _ in 0..step.distance {
+            match direction {
+                0 => y += 1,
+                1 => x += 1,
+                2 => y -= 1,
+                3 => x -= 1,
+                _ => {},
+            }
+
+            let location = Location {
+                x: x,
+                y: y,
+            };
+
+            if stop_at_revisit && !visited.insert(location) {
+                done = true;
+                break;
+            }
         }
+
+        if done {
+            break;
+        }
+
+        // println!("{} -> x: {}, y: {}, direction: {}", step, x, y, direction);
     }
 
     x.abs() + y.abs()
@@ -108,6 +140,10 @@ fn evaluate_steps(steps: &Vec<Step>) -> i32 {
 fn main() {
     let input = read_file("input.txt").unwrap();
     let steps = parse_steps(&input).unwrap();
-    let distance = evaluate_steps(&steps);
-    println!("Result: {}", distance);
+
+    let part_1_result = evaluate_steps(&steps, false);
+    println!("Part 1 result: {}", part_1_result);
+    
+    let part_2_result = evaluate_steps(&steps, true);
+    println!("Part 2 result: {}", part_2_result);
 }
