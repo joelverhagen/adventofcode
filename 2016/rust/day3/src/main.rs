@@ -39,6 +39,7 @@ enum TriangleParseError {
     CouldNotOpenFile,
     NotEnoughSides(i32, i32),
     InvalidSide(i32, i32, String),
+    InvalidNumberOfTriangles,
 }
 
 fn parse_triangle_side(line_index: i32, pieces: &mut SplitWhitespace, side_index: i32) -> Result<i32, TriangleParseError> {
@@ -67,7 +68,7 @@ fn parse_triangle_line(line_index: i32, line: &str) -> Result<Triangle, Triangle
     })
 }
 
-fn parse_triangle_file(path: &str) -> Result<Vec<Triangle>, TriangleParseError> {
+fn parse_triangle_file_line_by_line(path: &str) -> Result<Vec<Triangle>, TriangleParseError> {
     let file = match File::open(path) {
         Err(_)   => return Err(TriangleParseError::CouldNotOpenFile),
         Ok(file) => file,
@@ -92,7 +93,48 @@ fn parse_triangle_file(path: &str) -> Result<Vec<Triangle>, TriangleParseError> 
     Ok(triangles)
 }
 
-fn get_part_1_result(triangles: &Vec<Triangle>) -> usize {
+fn get_column_triangles_at(index: usize, triangles: &Vec<Triangle>) -> (Triangle, Triangle, Triangle)  {
+    let a = &triangles[index];
+    let b = &triangles[index + 1];
+    let c = &triangles[index + 2];
+
+    (
+        Triangle {
+            side_0: a.side_0,
+            side_1: b.side_0,
+            side_2: c.side_0,
+        },
+        Triangle {
+            side_0: a.side_1,
+            side_1: b.side_1,
+            side_2: c.side_1,
+        },
+        Triangle {
+            side_0: a.side_2,
+            side_1: b.side_2,
+            side_2: c.side_2,
+        }
+    )
+}
+
+fn get_triangles_by_column(triangles_by_line: &Vec<Triangle>) -> Result<Vec<Triangle>, TriangleParseError> {
+    if triangles_by_line.len() % 3 != 0 {
+        return Err(TriangleParseError::InvalidNumberOfTriangles);
+    }
+
+    let mut output: Vec<Triangle> = Vec::new();
+
+    for i in 0..(triangles_by_line.len() / 3) {
+        let (a, b, c) = get_column_triangles_at(3 * i, &triangles_by_line);
+        output.push(a);
+        output.push(b);
+        output.push(c);
+    }
+
+    Ok(output)
+}
+
+fn get_count_of_valid_triangles(triangles: &Vec<Triangle>) -> usize {
     triangles
         .iter()
         .filter(|&t| t.is_valid())
@@ -100,8 +142,11 @@ fn get_part_1_result(triangles: &Vec<Triangle>) -> usize {
 }
 
 fn main() {
-    let triangles = parse_triangle_file("input.txt").unwrap();
-
-    let part_1_result = get_part_1_result(&triangles);    
+    let triangles_by_line = parse_triangle_file_line_by_line("input.txt").unwrap();
+    let part_1_result = get_count_of_valid_triangles(&triangles_by_line); 
     println!("Part 1 result: {}", part_1_result);
+
+    let triangles_by_column = get_triangles_by_column(&triangles_by_line).unwrap();
+    let part_2_result = get_count_of_valid_triangles(&triangles_by_column); 
+    println!("Part 2 result: {}", part_2_result);
 }
