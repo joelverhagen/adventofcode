@@ -1,3 +1,4 @@
+use std::ascii::AsciiExt;
 use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::fs::File;
@@ -10,7 +11,8 @@ enum RoomParseError {
     NotEnoughHyphenPieces(usize),
     WrongNumberOfLeftSquareBracketPieces(usize),
     SectorIdCouldNotBeParsed(String),
-    ChecksumMustHaveFiveChars(usize)
+    ChecksumMustHaveFiveChars(usize),
+    PieceCharsMustBeLowercaseAlphabet(char),
 }
 
 #[derive(Debug)]
@@ -56,6 +58,27 @@ impl Room {
         true
     }
 
+    fn decrypt_room_name(&self) -> String {
+        let mut room_name = String::new();
+
+        for i in 0..self.pieces.len() {
+            if i > 0 {
+                room_name.push(' ');
+            }
+
+            let piece = &self.pieces[i];
+
+            for c in piece {
+                let index = (((*c as i32) - ('a' as i32) + self.sector_id) % 26) as u8;
+                let c = (('a' as u8) + index) as char;
+
+                room_name.push(c);
+            }
+        }
+
+        room_name
+    }
+
     fn parse(unparsed_room: &str) -> Result<Room, RoomParseError> {
         let mut pieces: Vec<&str> = unparsed_room
             .split('-')
@@ -71,6 +94,14 @@ impl Room {
             .iter()
             .map(|&p| p.chars().collect())
             .collect();
+
+        for piece in &pieces {
+            for c in piece {
+                if !c.is_ascii() || !c.is_alphabetic() || !c.is_lowercase() {
+                    return Err(RoomParseError::PieceCharsMustBeLowercaseAlphabet(*c))
+                }
+            }
+        }
 
         let sector_id_and_checksum: Vec<&str> = last_piece
             .split('[')
@@ -135,10 +166,23 @@ fn get_real_room_sector_id_sum(rooms: &Vec<Room>) -> i32 {
     sum
 }
 
+fn get_north_pole_object_storage_sector(rooms: &Vec<Room>) -> Option<i32> {
+    for room in rooms {
+        if room.is_real() && room.decrypt_room_name() == "northpole object storage" {
+            return Some(room.sector_id)
+        }
+    }
+
+    None
+}
+
 fn main() {
     let rooms = parse_room_file("input.txt").unwrap();
 
     let part_1_result = get_real_room_sector_id_sum(&rooms);
     println!("Part 1 result: {}", part_1_result);
+
+    let part_2_result = get_north_pole_object_storage_sector(&rooms).unwrap();
+    println!("Part 2 result: {}", part_2_result);
 }
     
