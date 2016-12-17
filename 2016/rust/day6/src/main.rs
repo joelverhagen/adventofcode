@@ -9,7 +9,13 @@ enum ColumnFileError {
     CouldNotReadFile,
 }
 
-fn get_most_frequent_letter(chars: &Vec<char>) -> Option<char> {
+#[derive(Debug, Copy, Clone)]
+enum CharSelection {
+    LeastCommon,
+    MostCommon,
+}
+
+fn get_most_frequent_letter(chars: &Vec<char>, selection: CharSelection) -> Option<char> {
     let mut char_counts: HashMap<char, i32> = HashMap::new();
 
     for c in chars {
@@ -26,19 +32,18 @@ fn get_most_frequent_letter(chars: &Vec<char>) -> Option<char> {
         .collect();
 
     char_counts.sort_by(|a, b| {
-        match a.1.cmp(b.1).reverse() { 
+        match a.1.cmp(b.1) { 
             Ordering::Equal => a.0.cmp(b.0),
             other           => other,
         }
     });
 
-    let c = *char_counts
-        .iter()
-        .nth(0)
-        .unwrap()
-        .0;
+    let entry = match selection {
+        CharSelection::LeastCommon => char_counts.first(),
+        CharSelection::MostCommon  => char_counts.last(),
+    };
 
-    Some(c)
+    Some(*entry.unwrap().0)
 }
 
 fn get_char_columns(path: &str) -> Result<Vec<Vec<char>>, ColumnFileError> {
@@ -71,11 +76,11 @@ fn get_char_columns(path: &str) -> Result<Vec<Vec<char>>, ColumnFileError> {
     Ok(columns)
 }
 
-fn get_part_1_result(columns: &Vec<Vec<char>>) -> String {
+fn select_column_letters(columns: &Vec<Vec<char>>, selection: CharSelection) -> String {
     let mut output = String::new();
 
     for column in columns {
-        match get_most_frequent_letter(&column) {
+        match get_most_frequent_letter(&column, selection) {
             Some(c) => output.push(c),
             None    => {},
         };
@@ -87,6 +92,9 @@ fn get_part_1_result(columns: &Vec<Vec<char>>) -> String {
 fn main() {
     let columns = get_char_columns("input.txt").unwrap();
 
-    let part_1_result = get_part_1_result(&columns);
+    let part_1_result = select_column_letters(&columns, CharSelection::MostCommon);
     println!("Part 1 result: {}", part_1_result);
+
+    let part_2_result = select_column_letters(&columns, CharSelection::LeastCommon);
+    println!("Part 2 result: {}", part_2_result);
 }
