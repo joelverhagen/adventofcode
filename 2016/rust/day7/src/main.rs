@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::BufReader;
 use std::io::BufRead;
+use std::collections::HashSet;
 
 #[derive(Debug)]
 enum IpAddressParseError {
@@ -16,6 +17,25 @@ struct IpAddress {
 struct IpAddressSequence {
     is_hypernet: bool,
     chars: Vec<char>,
+}
+
+#[derive(Debug, Eq, PartialEq, Hash)]
+struct Aba {
+    value: Vec<char>
+}
+
+impl Aba {
+    fn get_bab(&self) -> Aba {
+        let mut bab: Vec<char> = Vec::new();
+
+        bab.push(self.value[1]);
+        bab.push(self.value[0]);
+        bab.push(self.value[1]);
+
+        Aba {
+            value: bab
+        }
+    }
 }
 
 impl IpAddressSequence {
@@ -44,7 +64,31 @@ impl IpAddressSequence {
 
         false
     }
+
+    fn get_abas(&self) -> HashSet<Aba> {
+        let mut abas: HashSet<Aba> = HashSet::new();
+
+        if self.chars.len() < 3 {
+            return abas;
+        }
+
+        for i in 2..self.chars.len() {
+            if self.chars[i - 2] == self.chars[i] &&
+               self.chars[i - 1] != self.chars[i]
+            {
+                let aba = &self.chars[(i - 2)..(i + 1)];
+                let aba = aba.to_vec();
+
+                abas.insert(Aba {
+                    value: aba
+                });
+            }
+        }
+
+        abas
+    }
 }
+
 
 impl IpAddress {
     fn parse(unparsed: &str) -> IpAddress {
@@ -90,6 +134,27 @@ impl IpAddress {
 
         has_abba
     }
+
+    fn supports_ssl(&self) -> bool {
+        let mut supernet_abas: HashSet<Aba> = HashSet::new();
+        let mut hypernet_abas: HashSet<Aba> = HashSet::new();
+
+        for s in &self.sequences {
+            let abas = s.get_abas();
+            for aba in abas {
+                if s.is_hypernet {
+                    hypernet_abas.insert(aba.get_bab());
+                } else {
+                    supernet_abas.insert(aba);
+                }
+            }
+        }
+
+        supernet_abas
+            .intersection(&hypernet_abas)
+            .next()
+            .is_some()
+    }
 }
 
 fn parse_ip_address_file(path: &str) -> Result<Vec<IpAddress>, IpAddressParseError> {
@@ -120,9 +185,19 @@ fn count_supporting_tls(ip_addresses: &Vec<IpAddress>) -> usize {
         .count()
 }
 
+fn count_supporting_ssl(ip_addresses: &Vec<IpAddress>) -> usize {
+    ip_addresses
+        .iter()
+        .filter(|i| i.supports_ssl())
+        .count()
+}
+
 fn main() {
     let ip_addresses = parse_ip_address_file("input.txt").unwrap();
 
     let part_1_result = count_supporting_tls(&ip_addresses);
     println!("Part 1 result: {}", part_1_result);
+
+    let part_2_result = count_supporting_ssl(&ip_addresses);
+    println!("Part 2 result: {}", part_2_result);
 }
