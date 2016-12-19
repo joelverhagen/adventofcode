@@ -204,4 +204,7 @@ fn main() {
 
     let part_1_result = display.count_on_pixels();
     println!("Part 1 result: {}", part_1_result);
+
+    println!("Part 2 result:");
+    println!("{}", display.pretty_print());
 }
