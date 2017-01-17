@@ -1,5 +1,3 @@
-use decompresstokens::DecompressToken;
-
 #[derive(Clone, Copy, Debug)]
 pub enum DecompressError {
     CouldNotReadFile,
@@ -9,6 +7,5 @@ pub enum DecompressError {
     ExpectedCloseParenthesis,
     CouldNotParseInteger,
     InvalidRepeatDirective,
-    UnexpectedToken(DecompressToken),
     ExpectedMoreCharacters,
 }

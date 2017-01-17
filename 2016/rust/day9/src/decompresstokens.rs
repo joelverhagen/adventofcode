@@ -4,12 +4,27 @@ use decompresserror::DecompressError;
 use filechars::FileChars;
 
 #[derive(Clone, Copy, Debug)]
-pub enum DecompressToken {
+pub enum DecompressTokenType {
     OpenParenthesis,
     Integer(usize),
     X,
     CloseParenthesis,
     Character(char),
+}
+
+#[derive(Debug)]
+pub struct DecompressToken {
+    pub text: Vec<char>,
+    pub token_type: DecompressTokenType,
+}
+
+impl DecompressToken {
+    fn new(text: Vec<char>, token_type: DecompressTokenType) -> DecompressToken {
+        DecompressToken {
+            text: text,
+            token_type: token_type,
+        }
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -25,7 +40,6 @@ enum State {
 pub struct DecompressTokens {
     chars: Peekable<FileChars>,
     state: State,
-    remaining_compressed: usize,
 }
 
 impl DecompressTokens {
@@ -38,21 +52,14 @@ impl DecompressTokens {
         Ok(DecompressTokens {
             chars: chars.peekable(),
             state: State::Initial,
-            remaining_compressed: 0,
         })
     }
 
     fn read_integer(&mut self, next_state: State) -> Result<DecompressToken, DecompressError> {        
         match read_integer(&mut self.chars) {
-            Ok(i)    => {
-                // It's possible to the repeat directives to overlap. Therefore we have to count down the size of the
-                // directive so that repeat directives insight of other repeat directives are ignored.
-                if self.state == State::ExpectingFirstInteger {
-                    self.remaining_compressed = i;
-                }
-
+            Ok((text, i))    => {
                 self.state = next_state;
-                Ok(DecompressToken::Integer(i))
+                Ok(DecompressToken::new(text, DecompressTokenType::Integer(i)))
             },
             Err(err) => {
                 self.state = State::Error;
@@ -61,15 +68,11 @@ impl DecompressTokens {
         }
     }
 
-    fn token(&mut self, next_state: State, token: DecompressToken) -> Result<DecompressToken, DecompressError> {
-        if self.state == State::Initial && self.remaining_compressed > 0 {
-            // Count down the current repeat directive.
-            self.remaining_compressed -= 1;
-        }
-
+    fn token(&mut self, c: char, next_state: State, token_type: DecompressTokenType) -> Result<DecompressToken, DecompressError> {
+        let text = vec![c];
         self.chars.next();
         self.state = next_state;
-        Ok(token)
+        Ok(DecompressToken::new(text, token_type))
     }
 
     fn error(&mut self, err: DecompressError) -> Result<DecompressToken, DecompressError> {   
@@ -100,22 +103,22 @@ impl Iterator for DecompressTokens {
                 self.error(DecompressError::ExpectedInteger)
             },
             State::ExpectingX                if c == 'x'                 => {
-                self.token(State::ExpectingSecondInteger, DecompressToken::X)
+                self.token(c, State::ExpectingSecondInteger, DecompressTokenType::X)
             },
             State::ExpectingX                                            => {
                 self.error(DecompressError::ExpectedX)
             },
             State::ExpectingCloseParenthesis if c == ')'                 => {
-                self.token(State::Initial, DecompressToken::CloseParenthesis)
+                self.token(c, State::Initial, DecompressTokenType::CloseParenthesis)
             },
             State::ExpectingCloseParenthesis                             => {
                 self.error(DecompressError::ExpectedCloseParenthesis)
             },
-            State::Initial if c == '(' && self.remaining_compressed == 0 => {
-                self.token(State::ExpectingFirstInteger, DecompressToken::OpenParenthesis)
+            State::Initial if c == '('                                   => {
+                self.token(c, State::ExpectingFirstInteger, DecompressTokenType::OpenParenthesis)
             },
             State::Initial                                               => {
-                self.token(State::Initial, DecompressToken::Character(c))
+                self.token(c, State::Initial, DecompressTokenType::Character(c))
             },
             State::Error                                                 => {
                 return None;
@@ -130,14 +133,14 @@ fn is_digit(c: char) -> bool {
     c.is_digit(10)
 }
 
-fn read_integer(chars: &mut Peekable<FileChars>) -> Result<usize, DecompressError> {
+fn read_integer(chars: &mut Peekable<FileChars>) -> Result<(Vec<char>, usize), DecompressError> {
     let unparsed_integer: String = match take_while(chars, |l, c| l <= 10 && is_digit(c)) {
         Ok(v)    => v.into_iter().collect(),
         Err(err) => return Err(err),
     };
 
     match unparsed_integer.parse::<usize>() {
-        Ok(i)  => Ok(i),
+        Ok(i)  => Ok((unparsed_integer.chars().collect(), i)),
         Err(_) => Err(DecompressError::CouldNotParseInteger),
     }
 }

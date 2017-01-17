@@ -1,12 +1,15 @@
 use std::io;
+use std::collections::VecDeque;
 use std::iter::Peekable;
 use decompresserror::DecompressError;
 use decompresstokens::DecompressTokens;
 use decompresstokens::DecompressToken;
+use decompresstokens::DecompressTokenType;
 
 pub struct Decompressor {
     tokens: Peekable<DecompressTokens>,
     state: State,
+    text: VecDeque<char>,
     repeat_sequence: Vec<char>,
     repeat_length_remaining: usize,
     repeat_count_remaining: usize,
@@ -15,6 +18,7 @@ pub struct Decompressor {
 #[derive(Debug)]
 enum State {
     Initial,
+    Text,
     RepeatDirective,
     Error,
 }
@@ -29,12 +33,27 @@ impl Decompressor  {
         Ok(Decompressor {
             tokens: tokens.peekable(),
             state: State::Initial,
+            text: VecDeque::new(),
             repeat_sequence: Vec::new(),
             repeat_length_remaining: 0,
             repeat_count_remaining: 0,
         })
     }
 
+    pub fn len(&mut self) -> Result<usize, DecompressError> {
+        let mut output = 0;
+        
+        for c_result in self {
+            match c_result {
+                Ok(_)    => output += 1,
+                Err(err) => return Err(err),
+            }
+        }   
+
+        Ok(output)
+    }
+
+    #[allow(dead_code)]
     pub fn read_to_end(&mut self) -> Result<String, DecompressError> {
         let mut output = String::new();
         
@@ -67,13 +86,11 @@ impl Decompressor  {
         match (self.tokens.next(),
                self.tokens.next(),
                self.tokens.next(),
-               self.tokens.next(),
                self.tokens.next()) {
-              (Some(Ok(DecompressToken::OpenParenthesis)),
-               Some(Ok(DecompressToken::Integer(length))),
-               Some(Ok(DecompressToken::X)),
-               Some(Ok(DecompressToken::Integer(count))),
-               Some(Ok(DecompressToken::CloseParenthesis))) => {
+              (Some(Ok(DecompressToken { text: _, token_type: DecompressTokenType::Integer(length) })),
+               Some(Ok(DecompressToken { text: _, token_type: DecompressTokenType::X })),
+               Some(Ok(DecompressToken { text: _, token_type: DecompressTokenType::Integer(count) })),
+               Some(Ok(DecompressToken { text: _, token_type: DecompressTokenType::CloseParenthesis }))) => {
                 self.repeat_length_remaining = length;
                 self.repeat_count_remaining = count;
                 Ok(())
@@ -87,10 +104,18 @@ impl Decompressor  {
     fn consume_repeat_sequence(&mut self) -> Result<(), DecompressError> {
         self.repeat_sequence.clear();
 
-        for _ in 0..self.repeat_length_remaining {
+        let mut i = 0;
+        while i < self.repeat_length_remaining {            
             match self.tokens.next() {
-                Some(Ok(DecompressToken::Character(c))) => self.repeat_sequence.push(c),
-                _                                       => return Err(DecompressError::ExpectedMoreCharacters),
+                Some(Ok(DecompressToken { text, token_type: _ })) => {
+                    i += text.len();
+                    for c in text {
+                        self.repeat_sequence.push(c)
+                    }
+                },
+                _                                                 => {
+                    return Err(DecompressError::ExpectedMoreCharacters)
+                },
             };
         }
         
@@ -114,8 +139,22 @@ impl Decompressor  {
         Some(Ok(c))
     }
 
-    fn character(&mut self, c: char) -> Option<Result<char, DecompressError>> {
-        self.tokens.next();
+    fn text(&mut self, text: Vec<char>) -> Option<Result<char, DecompressError>> {
+        self.state = State::Text;
+        self.text = VecDeque::new();
+        for c in text {
+            self.text.push_back(c);
+        }
+
+        self.next_text()
+    }
+
+    fn next_text(&mut self) -> Option<Result<char, DecompressError>> {
+        let c = self.text.pop_front().unwrap();
+        if self.text.len() == 0 {
+            self.state = State::Initial;
+        }
+
         Some(Ok(c))
     }
 
@@ -131,18 +170,22 @@ impl Iterator for Decompressor {
     fn next(&mut self) -> Option<Result<char, DecompressError>> {
         match self.state {
             State::Initial         => {                        
-                let t = match self.tokens.peek() {
-                    Some(&Ok(t))    => t,
-                    Some(&Err(err)) => return Some(Err(err)),
+                let t = match self.tokens.next() {
+                    Some(Ok(t))    => t,
+                    Some(Err(err)) => return Some(Err(err)),
                     None            => return None,
                 };
 
                 match t {
-                    DecompressToken::Character(c)    => self.character(c),
-                    DecompressToken::OpenParenthesis => self.start_repeat_directive(),
-                    _                                => self.error(DecompressError::UnexpectedToken(t))
+                    DecompressToken { text: _, token_type: DecompressTokenType::OpenParenthesis } => {
+                        return self.start_repeat_directive();
+                    },
+                    DecompressToken { text, token_type: _ }                                       => {
+                        return self.text(text);
+                    },
                 }
             },
+            State::Text            => self.next_text(),
             State::RepeatDirective => self.next_repeat_character(),
             State::Error           => None,
         }
