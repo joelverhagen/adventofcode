@@ -39,6 +39,13 @@ impl FactoryState {
         })
     }
 
+    pub fn get_output_microchip(&self, output: &Output) -> Option<Microchip> {
+        match self.output.get(output) {
+            Some(microchip) => *microchip,
+            None            => None
+        }
+    }
+
     pub fn execute_instruction(&mut self, instruction: &Instruction) -> Result<(), FactoryStateError> {
         match instruction {
             &Instruction::MicrochipGoesTo(microchip, bot) => self.execute_microchip_goes_to_bot(microchip, bot),

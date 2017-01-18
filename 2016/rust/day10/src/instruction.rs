@@ -35,6 +35,12 @@ impl Microchip {
     pub fn new(value: usize) -> Microchip {
         Microchip(value)
     }
+
+    pub fn value(&self) -> usize {
+        match self {
+            &Microchip(value) => value,
+        }
+    }
 }
 
 #[derive(Debug, Eq, Hash, PartialEq)]

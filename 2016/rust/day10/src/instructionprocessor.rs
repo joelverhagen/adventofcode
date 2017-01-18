@@ -2,12 +2,14 @@ use std::collections::VecDeque;
 use instruction::Bot;
 use instruction::Instruction;
 use instruction::Microchip;
+use instruction::Output;
 use factorystate::BotState;
 use factorystate::FactoryState;
 
 #[derive(Debug)]
 pub enum InstructionProcessorError {
-    CouldNotProcessInstructions
+    CouldNotProcessInstructions,
+    NoMicrochipInOutput,
 }
 
 #[derive(Debug)]
@@ -35,6 +37,22 @@ impl InstructionProcessor {
         let comparison_option = InstructionProcessor::find_comparison(&comparisons, low, high);
 
         Ok(comparison_option)
+    }
+
+    pub fn process_and_find_output_product(instructions: Vec<Instruction>, outputs: &Vec<Output>) -> Result<u64, InstructionProcessorError> {
+        let (state, _) = InstructionProcessor::process(instructions)?;
+
+        let mut values: Vec<usize> = Vec::new();
+        for output in outputs {
+            match state.get_output_microchip(&output) {
+                Some(microchip) => values.push(microchip.value()),
+                None            => return Err(InstructionProcessorError::NoMicrochipInOutput),
+            }
+        }
+
+        let product = values.iter().fold(1, |product, i| product * (*i as u64));
+
+        Ok(product)
     }
 
     pub fn process(instructions: Vec<Instruction>) -> Result<(FactoryState, Vec<BotComparison>), InstructionProcessorError> {
