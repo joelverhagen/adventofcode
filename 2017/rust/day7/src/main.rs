@@ -71,8 +71,67 @@ fn find_root(programs: &HashMap<String, Program>) -> &String {
     root
 }
 
+fn find_imbalance(programs: &HashMap<String, Program>) -> i32 {
+    let mut total_weights: HashMap<&String, u32> = HashMap::new();
+    
+    while total_weights.len() < programs.len() {
+        for program in programs.values() {
+            let mut above_weights: HashMap<&String, u32> = HashMap::new();
+            for above in &program.above {
+                let entry = total_weights.get(&above);
+                if entry.is_none() {
+                    break;
+                } else {
+                    above_weights.insert(above, *entry.unwrap());
+                }
+            }
+
+            if above_weights.len() < program.above.len() {
+                continue;
+            }
+
+            let actual_total_above = above_weights
+                .values()
+                .map(|x| *x)
+                .sum::<u32>();
+
+            // We can select an expected 
+            if above_weights.len() > 2 {
+                let mut weight_to_count: HashMap<u32, usize> = HashMap::new();
+                for (_, value) in &above_weights {
+                    *weight_to_count.entry(*value).or_insert(0) += 1;
+                }
+
+                let mut sorted_weight_to_count: Vec<(&u32, &usize)> = weight_to_count
+                    .iter()
+                    .collect();
+                sorted_weight_to_count.sort_by(|a, b| b.1.cmp(a.1));
+
+                let correct_above_weight = *sorted_weight_to_count[0].0;
+                let expected_total_above = correct_above_weight * above_weights.len() as u32;
+                let extra_weight = expected_total_above as i32 - actual_total_above as i32;
+
+                if extra_weight != 0 {
+                    for above in &program.above {
+                        if *above_weights.get(above).unwrap() != correct_above_weight {
+                            return programs.get(above).unwrap().weight as i32 + extra_weight;
+                        }
+                    }
+                }
+            }
+
+            let total_weight = program.weight + actual_total_above;
+
+            total_weights.insert(&program.name, total_weight);
+        }
+    }
+
+    0
+}
+
 fn main() {
     let file_name = "input.txt";
     let programs = read_programs(file_name);
     println!("Day 7, part 1: {}", find_root(&programs));
+    println!("Day 7, part 2: {}", find_imbalance(&programs));
 }
