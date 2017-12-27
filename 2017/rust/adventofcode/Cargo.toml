@@ -1,7 +1,6 @@
 [package]
-name = "day10"
+name = "adventofcode"
 version = "0.1.0"
 authors = ["Joel Verhagen <joel.verhagen@gmail.com>"]
 
 [dependencies]
-adventofcode = { path = "../adventofcode" }
