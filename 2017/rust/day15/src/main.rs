@@ -4,20 +4,39 @@ use std::io::{BufRead, BufReader};
 struct Generator {
     previous: u64,
     factor: u64,
+    divisor: u64,
 }
 
 impl Generator {
-    fn new_a(previous: u64) -> Generator {
+    fn new_a_1(previous: u64) -> Generator { 
+        Self::new_a(previous, 1)
+    }
+
+    fn new_b_1(previous: u64) -> Generator { 
+        Self::new_b(previous, 1)
+    }
+
+    fn new_a_2(previous: u64) -> Generator { 
+        Self::new_a(previous, 4)
+    }
+
+    fn new_b_2(previous: u64) -> Generator { 
+        Self::new_b(previous, 8)
+    }
+
+    fn new_a(previous: u64, divisor: u64) -> Generator {
         Generator {
             previous,
             factor: 16807,
+            divisor,
         }
     }
 
-    fn new_b(previous: u64) -> Generator {
+    fn new_b(previous: u64, divisor: u64) -> Generator {
         Generator {
             previous,
             factor: 48271,
+            divisor,
         }
     }
 }
@@ -26,9 +45,14 @@ impl Iterator for Generator {
     type Item = u64;
 
     fn next(&mut self) -> Option<u64> {
-        let next = (self.previous * self.factor) % 2147483647;
-        self.previous = next;
-        Some(next)
+        loop {
+            let next = (self.previous * self.factor) % 2147483647;
+            self.previous = next;
+
+            if next % self.divisor == 0 {
+                return Some(next)
+            }
+        }
     }
 }
 
@@ -57,8 +81,8 @@ fn get_starting_numbers(path: &str) -> (u64, u64) {
 }
 
 fn get_part_1(starting_numbers: (u64, u64)) -> usize {
-    let a = Generator::new_a(starting_numbers.0);
-    let b = Generator::new_b(starting_numbers.1);
+    let a = Generator::new_a_1(starting_numbers.0);
+    let b = Generator::new_b_1(starting_numbers.1);
 
     a
         .zip(b)
@@ -68,8 +92,21 @@ fn get_part_1(starting_numbers: (u64, u64)) -> usize {
         .sum()
 }
 
+fn get_part_2(starting_numbers: (u64, u64)) -> usize {
+    let a = Generator::new_a_2(starting_numbers.0);
+    let b = Generator::new_b_2(starting_numbers.1);
+
+    a
+        .zip(b)
+        .map(|(a, b)| have_matching_lower_16_bits(a, b))
+        .take(5000000)
+        .map(|b| if b { 1 } else { 0 })
+        .sum()
+}
+
 fn main() {
     let path = "input.txt";
     let starting_numbers = get_starting_numbers(path);
-    println!("Day 15, part 1: {:?}", get_part_1(starting_numbers));
+    println!("Day 15, part 1: {}", get_part_1(starting_numbers));
+    println!("Day 15, part 2: {}", get_part_2(starting_numbers));
 }
